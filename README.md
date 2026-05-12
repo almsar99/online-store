@@ -21,6 +21,8 @@
 - Миграции
 - Медиафайлы
 - Переменные окружения (.env)
+- Фикстуры
+- Кастомная management-команда fill
 
 ## Установка
 ```
@@ -53,3 +55,11 @@ python manage.py migrate
 ```
 python manage.py createsuperuser
 ```
+
+## Загрузка фикстур
+```
+python manage.py fill
+```
+
+## Скриншоты
+Скриншоты ORM-запросов находятся в папке screenshots
