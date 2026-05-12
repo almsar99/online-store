@@ -156,6 +156,20 @@
 
 </div>
 
+<div class="container mt-5">
+    <h2>Контакты</h2>
+
+    {% for contact in contacts_list %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>{{ contact.city }}</h5>
+            <p>{{ contact.phone }}</p>
+            <p>{{ contact.email }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
 </body>
 
 </html>

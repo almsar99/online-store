@@ -62,3 +62,26 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Contact(models.Model):
+    city = models.CharField(
+        max_length=100,
+        verbose_name='Город'
+    )
+
+    phone = models.CharField(
+        max_length=35,
+        verbose_name='Телефон'
+    )
+
+    email = models.EmailField(
+        verbose_name='Email'
+    )
+
+    class Meta:
+        verbose_name = 'Контакт'
+        verbose_name_plural = 'Контакты'
+
+    def __str__(self):
+        return self.city

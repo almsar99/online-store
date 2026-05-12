@@ -1,13 +1,27 @@
 from django.shortcuts import render
 
+from catalog.models import Product, Contact
+
+
 
 def home(request):
-    return render(request, 'catalog/home.html')
+    products = Product.objects.order_by('-created_at')[:5]
+
+    print(products)
+
+    context = {
+        'products': products
+    }
+
+    return render(request, 'catalog/home.html', context)
+
 
 
 def contacts(request):
+    contacts_list = Contact.objects.all()
 
-    if request.method == 'POST':
-        print(request.POST)
+    context = {
+        'contacts_list': contacts_list
+    }
 
-    return render(request, 'catalog/contacts.html')
+    return render(request, 'catalog/contacts.html', context)
