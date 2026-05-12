@@ -13,6 +13,14 @@
 - POST запросы
 - Обработка формы
 - Вывод данных формы в консоль
+- PostgreSQL
+- ORM Django
+- Модели Category и Product
+- Django admin
+- CRUD операции через ORM
+- Миграции
+- Медиафайлы
+- Переменные окружения (.env)
 
 ## Установка
 ```
@@ -34,4 +42,14 @@ python manage.py runserver
 ## Открыть в браузере:
 ```
 http://127.0.0.1:8000/
+```
+## Миграции
+```
+python manage.py makemigrations
+python manage.py migrate
+```
+
+## Создание суперпользователя
+```
+python manage.py createsuperuser
 ```
