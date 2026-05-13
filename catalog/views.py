@@ -1,13 +1,21 @@
-from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator
+from django.shortcuts import render, get_object_or_404, redirect
 
+from catalog.forms import ProductForm
 from catalog.models import Product, Contact
 
 
 def home(request):
     products = Product.objects.all()
 
+    paginator = Paginator(products, 2)
+
+    page_number = request.GET.get('page')
+
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'products': products
+        'page_obj': page_obj
     }
 
     return render(request, 'catalog/home.html', context)
@@ -31,3 +39,22 @@ def product_detail(request, pk):
     }
 
     return render(request, 'catalog/product_detail.html', context)
+
+
+def product_create(request):
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            form.save()
+            return redirect('catalog:home')
+
+    else:
+        form = ProductForm()
+
+    context = {
+        'form': form
+    }
+
+    return render(request, 'catalog/product_form.html', context)
