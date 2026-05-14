@@ -28,6 +28,15 @@ class ProductForm(forms.ModelForm):
             'price',
         ]
 
+        error_messages = {
+            'image': {
+                'invalid_image': (
+                    'Загрузите корректное '
+                    'изображение PNG или JPEG.'
+                )
+            }
+        }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -69,3 +78,24 @@ class ProductForm(forms.ModelForm):
             )
 
         return price
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+
+        if image:
+            if image.size > 5 * 1024 * 1024:
+                raise forms.ValidationError(
+                    'Размер изображения не должен превышать 5 МБ.'
+                )
+
+            valid_formats = [
+                'image/jpeg',
+                'image/png',
+            ]
+
+            if image.content_type not in valid_formats:
+                raise forms.ValidationError(
+                    'Допустимы только PNG и JPEG изображения.'
+                )
+
+        return image
