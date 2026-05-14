@@ -1,70 +1,11 @@
 from django.core.paginator import Paginator
-from django.shortcuts import render, get_object_or_404, redirect
-
-from catalog.forms import ProductForm
-from catalog.models import Product, Contact
-
-
-def home(request):
-    products = Product.objects.all()
-
-    paginator = Paginator(products, 2)
-
-    page_number = request.GET.get('page')
-
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        'page_obj': page_obj
-    }
-
-    return render(request, 'catalog/home.html', context)
-
-
-def contacts(request):
-    contacts_list = Contact.objects.all()
-
-    context = {
-        'contacts_list': contacts_list
-    }
-
-    return render(request, 'catalog/contacts.html', context)
-
-
-def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-
-    context = {
-        'product': product
-    }
-
-    return render(request, 'catalog/product_detail.html', context)
-
-
-def product_create(request):
-
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            form.save()
-            return redirect('catalog:home')
-
-    else:
-        form = ProductForm()
-
-    context = {
-        'form': form
-    }
-
-    return render(request, 'catalog/product_form.html', context)
-from django.core.paginator import Paginator
-from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,
     DetailView,
     CreateView,
+    UpdateView,
+    DeleteView,
     TemplateView,
 )
 
@@ -115,4 +56,22 @@ class ProductCreateView(CreateView):
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'
+    success_url = reverse_lazy('catalog:home')
+
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/product_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'catalog:product_detail',
+            args=[self.kwargs.get('pk')]
+        )
+
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'catalog/product_confirm_delete.html'
     success_url = reverse_lazy('catalog:home')

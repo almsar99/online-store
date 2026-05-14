@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Удаление продукта
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-6">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h3>
+                    Вы хотите удалить продукт "{{ object.name }}"?
+                </h3>
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    <button type="submit"
+                            class="btn btn-outline-danger">
+                        Удалить
+                    </button>
+
+                    <a href="{% url 'catalog:product_detail' object.pk %}"
+                       class="btn btn-outline-primary">
+                        Отмена
+                    </a>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
