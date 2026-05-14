@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Блог
+{% endblock %}
+
+{% block content %}
+
+<div class="row mb-4">
+
+    <div class="col-12">
+
+        <a href="{% url 'blog:create' %}"
+           class="btn btn-outline-primary">
+            Добавить статью
+        </a>
+
+    </div>
+
+</div>
+
+<div class="row">
+
+    {% for object in object_list %}
+
+    <div class="col-4">
+
+        <div class="card mb-4">
+
+            {% if object.preview %}
+            <img src="{{ object.preview.url }}"
+                 class="card-img-top">
+            {% endif %}
+
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    {{ object.title }}
+                </h5>
+
+                <p class="card-text">
+                    {{ object.content|truncatechars:100 }}
+                </p>
+
+                <a href="{% url 'blog:view' object.pk %}"
+                   class="btn btn-outline-primary">
+                    Подробнее
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}
