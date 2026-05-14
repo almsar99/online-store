@@ -1,3 +1,4 @@
+from django.core.mail import send_mail
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,
@@ -27,6 +28,15 @@ class BlogDetailView(DetailView):
 
         obj.views_count += 1
         obj.save()
+
+        if obj.views_count == 100:
+            send_mail(
+                subject='100 просмотров!',
+                message=f'Статья "{obj.title}" набрала 100 просмотров.',
+                from_email='admin@localhost',
+                recipient_list=['admin@localhost'],
+                fail_silently=False,
+            )
 
         return obj
 
