@@ -69,9 +69,18 @@
 
                     <span class="navbar-text text-warning me-3">
 
-                        👋 {{ user.username }}
+                        👋 {{ user.email }}
 
                     </span>
+
+                    <a
+                        class="btn btn-outline-light me-2"
+                        href="{% url 'users:profile' %}"
+                    >
+
+                        Профиль
+
+                    </a>
 
                     <form
                         method="post"

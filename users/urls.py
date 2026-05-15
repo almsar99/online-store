@@ -5,6 +5,7 @@ from users.views import (
     UserRegisterView,
     UserLoginView,
     UserLogoutView,
+    UserProfileView,
 )
 
 app_name = UsersConfig.name
@@ -30,6 +31,13 @@ urlpatterns = [
         'logout/',
         UserLogoutView.as_view(),
         name='logout'
+    ),
+
+    # Профиль
+    path(
+        'profile/',
+        UserProfileView.as_view(),
+        name='profile'
     ),
 
 ]
