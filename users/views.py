@@ -38,7 +38,11 @@ class UserRegisterView(CreateView):
             fail_silently=True,
         )
 
-        login(self.request, user)
+        login(
+            self.request,
+            user,
+            backend='users.backends.EmailBackend'
+        )
 
         return super().form_valid(form)
 
@@ -64,4 +68,5 @@ class UserProfileView(LoginRequiredMixin, UpdateView):
     login_url = '/users/login/'
 
     def get_object(self, queryset=None):
+
         return self.request.user
