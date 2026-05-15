@@ -89,13 +89,20 @@ class ProductForm(forms.ModelForm):
                 )
 
             valid_formats = [
-                'image/jpeg',
-                'image/png',
+                '.jpg',
+                '.jpeg',
+                '.png',
             ]
 
-            if image.content_type not in valid_formats:
-                raise forms.ValidationError(
-                    'Допустимы только PNG и JPEG изображения.'
-                )
+            if hasattr(image, 'name'):
+                image_name = image.name.lower()
+
+                if not any(
+                    image_name.endswith(ext)
+                    for ext in valid_formats
+                ):
+                    raise forms.ValidationError(
+                        'Допустимы только PNG и JPEG изображения.'
+                    )
 
         return image
