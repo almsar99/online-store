@@ -71,6 +71,20 @@
 
                         👋 {{ user.email }}
 
+                        {% if user.is_superuser %}
+
+                            | 👑 Суперпользователь
+
+                        {% elif user.groups.all.0 %}
+
+                            | 🛡️ Модератор
+
+                        {% else %}
+
+                            | 👤 Пользователь
+
+                        {% endif %}
+
                     </span>
 
                     <a

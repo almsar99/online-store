@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -81,6 +82,12 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
 
     login_url = '/users/login/'
 
+    def form_valid(self, form):
+
+        form.instance.owner = self.request.user
+
+        return super().form_valid(form)
+
 
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
 
@@ -91,6 +98,20 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'catalog/product_form.html'
 
     login_url = '/users/login/'
+
+    def dispatch(self, request, *args, **kwargs):
+
+        product = self.get_object()
+
+        if (
+            product.owner != request.user
+            and not request.user.has_perm(
+                'catalog.can_unpublish_product'
+            )
+        ):
+            raise PermissionDenied
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
 
@@ -109,3 +130,17 @@ class ProductDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('catalog:home')
 
     login_url = '/users/login/'
+
+    def dispatch(self, request, *args, **kwargs):
+
+        product = self.get_object()
+
+        if (
+            product.owner != request.user
+            and not request.user.has_perm(
+                'catalog.delete_product'
+            )
+        ):
+            raise PermissionDenied
+
+        return super().dispatch(request, *args, **kwargs)

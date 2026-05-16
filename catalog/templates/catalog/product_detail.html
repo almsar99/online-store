@@ -69,7 +69,7 @@
 
                             </a>
 
-                            {% if user.is_authenticated %}
+                            {% if user == product.owner or perms.catalog.can_unpublish_product %}
 
                             <a
                                 href="{% url 'catalog:product_update' product.pk %}"
@@ -79,6 +79,10 @@
                                 Редактировать
 
                             </a>
+
+                            {% endif %}
+
+                            {% if user == product.owner or perms.catalog.delete_product %}
 
                             <a
                                 href="{% url 'catalog:product_delete' product.pk %}"

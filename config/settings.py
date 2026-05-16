@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'users',
 
     'django.contrib.admin',
-    'django.contrib.auth',
+    'users.auth_apps.CustomAuthConfig',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
