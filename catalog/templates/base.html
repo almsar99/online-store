@@ -75,7 +75,11 @@
 
                             | 👑 Суперпользователь
 
-                        {% elif user.groups.all.0 %}
+                        {% elif user.groups.first.name == 'Контент-менеджер' %}
+
+                            | 📝 Контент-менеджер
+
+                        {% elif user.groups.first.name == 'Модератор продуктов' %}
 
                             | 🛡️ Модератор
 

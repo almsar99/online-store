@@ -213,3 +213,8 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+
+# CUSTOM ERROR PAGES
+
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'

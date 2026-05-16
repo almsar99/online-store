@@ -2,6 +2,7 @@ from django.db import models
 
 
 class Blog(models.Model):
+
     title = models.CharField(
         max_length=255,
         verbose_name='Заголовок'
@@ -34,8 +35,14 @@ class Blog(models.Model):
     )
 
     class Meta:
+
         verbose_name = 'Статья'
+
         verbose_name_plural = 'Статьи'
+
+        permissions = [
+            ('can_manage_blog', 'Can manage blog'),
+        ]
 
     def __str__(self):
         return self.title
