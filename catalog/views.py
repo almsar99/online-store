@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -14,14 +15,17 @@ from catalog.models import Product, Contact
 
 
 class HomeListView(ListView):
+
     model = Product
     template_name = 'catalog/home.html'
     context_object_name = 'page_obj'
 
     def get_queryset(self):
-        return Product.objects.all()
+
+        return Product.objects.all().order_by('id')
 
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
 
         paginator = Paginator(self.object_list, 2)
@@ -36,9 +40,11 @@ class HomeListView(ListView):
 
 
 class ContactsTemplateView(TemplateView):
+
     template_name = 'catalog/contacts.html'
 
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
 
         context['contacts_list'] = Contact.objects.all()
@@ -47,31 +53,59 @@ class ContactsTemplateView(TemplateView):
 
 
 class ProductDetailView(DetailView):
+
     model = Product
     template_name = 'catalog/product_detail.html'
     context_object_name = 'product'
 
+    def get_object(self, queryset=None):
 
-class ProductCreateView(CreateView):
+        self.object = super().get_object(queryset)
+
+        self.object.views_count += 1
+
+        self.object.save()
+
+        return self.object
+
+
+class ProductCreateView(LoginRequiredMixin, CreateView):
+
     model = Product
+
     form_class = ProductForm
+
     template_name = 'catalog/product_form.html'
+
     success_url = reverse_lazy('catalog:home')
 
+    login_url = '/users/login/'
 
-class ProductUpdateView(UpdateView):
+
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
+
     model = Product
+
     form_class = ProductForm
+
     template_name = 'catalog/product_form.html'
 
+    login_url = '/users/login/'
+
     def get_success_url(self):
+
         return reverse_lazy(
             'catalog:product_detail',
             args=[self.kwargs.get('pk')]
         )
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
+
     model = Product
+
     template_name = 'catalog/product_confirm_delete.html'
+
     success_url = reverse_lazy('catalog:home')
+
+    login_url = '/users/login/'
