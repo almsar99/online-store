@@ -8,12 +8,22 @@ from catalog.views import (
     ProductCreateView,
     ProductUpdateView,
     ProductDeleteView,
+    ProductUnpublishView,
+    ProductPublishView,
+    MyProductsListView,
+    ModerationListView,
+    ProductApproveView,
+    ProductRejectView,
 )
 
 app_name = CatalogConfig.name
 
 urlpatterns = [
-    path('', HomeListView.as_view(), name='home'),
+    path(
+        '',
+        HomeListView.as_view(),
+        name='home'
+    ),
 
     path(
         'contacts/',
@@ -43,5 +53,41 @@ urlpatterns = [
         'delete/<int:pk>/',
         ProductDeleteView.as_view(),
         name='product_delete'
+    ),
+
+    path(
+        'publish/<int:pk>/',
+        ProductPublishView.as_view(),
+        name='product_publish'
+    ),
+
+    path(
+        'unpublish/<int:pk>/',
+        ProductUnpublishView.as_view(),
+        name='product_unpublish'
+    ),
+
+    path(
+        'my-products/',
+        MyProductsListView.as_view(),
+        name='my_products'
+    ),
+
+    path(
+        'moderation/',
+        ModerationListView.as_view(),
+        name='moderation_products'
+    ),
+
+    path(
+        'approve/<int:pk>/',
+        ProductApproveView.as_view(),
+        name='product_approve'
+    ),
+
+    path(
+        'reject/<int:pk>/',
+        ProductRejectView.as_view(),
+        name='product_reject'
     ),
 ]

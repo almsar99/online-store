@@ -1,4 +1,5 @@
 from django.db import models
+
 from users.models import User
 
 
@@ -14,7 +15,9 @@ class Category(models.Model):
     )
 
     class Meta:
+
         verbose_name = 'Категория'
+
         verbose_name_plural = 'Категории'
 
     def __str__(self):
@@ -23,6 +26,33 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+
+    STATUS_DRAFT = 'draft'
+
+    STATUS_PENDING = 'pending'
+
+    STATUS_PUBLISHED = 'published'
+
+    STATUS_REJECTED = 'rejected'
+
+    STATUS_CHOICES = [
+        (
+            STATUS_DRAFT,
+            'Черновик'
+        ),
+        (
+            STATUS_PENDING,
+            'На проверке'
+        ),
+        (
+            STATUS_PUBLISHED,
+            'Опубликован'
+        ),
+        (
+            STATUS_REJECTED,
+            'Отклонён'
+        ),
+    ]
 
     name = models.CharField(
         max_length=100,
@@ -49,18 +79,24 @@ class Product(models.Model):
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Владелец',
-        blank=True,
-        null=True
+        verbose_name='Владелец'
     )
 
     price = models.IntegerField(
         verbose_name='Цена за покупку'
     )
 
-    is_published = models.BooleanField(
-        default=False,
-        verbose_name='Опубликовано'
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_DRAFT,
+        verbose_name='Статус'
+    )
+
+    moderator_comment = models.TextField(
+        verbose_name='Комментарий модератора',
+        blank=True,
+        null=True
     )
 
     created_at = models.DateTimeField(
@@ -81,6 +117,7 @@ class Product(models.Model):
     class Meta:
 
         verbose_name = 'Продукт'
+
         verbose_name_plural = 'Продукты'
 
         permissions = [
@@ -114,6 +151,7 @@ class Contact(models.Model):
     class Meta:
 
         verbose_name = 'Контакт'
+
         verbose_name_plural = 'Контакты'
 
     def __str__(self):

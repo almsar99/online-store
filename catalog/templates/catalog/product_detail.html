@@ -58,6 +58,77 @@
 
                         </p>
 
+                        <p>
+
+                            <strong>Просмотры:</strong>
+                            {{ product.views_count }}
+
+                        </p>
+
+                        <div class="mb-4">
+
+                            {% if product.status == 'published' %}
+
+                            <span class="badge bg-success fs-6">
+
+                                Опубликован
+
+                            </span>
+
+                            {% elif product.status == 'pending' %}
+
+                            <span class="badge bg-warning text-dark fs-6">
+
+                                На проверке
+
+                            </span>
+
+                            {% elif product.status == 'rejected' %}
+
+                            <span class="badge bg-danger fs-6">
+
+                                Отклонен
+
+                            </span>
+
+                            {% else %}
+
+                            <span class="badge bg-secondary fs-6">
+
+                                Черновик
+
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                        {% if product.moderator_comment %}
+
+                        <div class="alert alert-danger">
+
+                            <strong>
+                                Комментарий модератора:
+                            </strong>
+
+                            <br>
+
+                            {{ product.moderator_comment }}
+
+                        </div>
+
+                        {% endif %}
+
+                        {% if product.status == 'published' and user == product.owner %}
+
+                        <div class="alert alert-warning py-2 px-3 mt-3 mb-0">
+
+                            Для редактирования снимите товар с публикации.
+
+                        </div>
+
+                        {% endif %}
+
                         <div class="mt-auto d-flex gap-2 flex-wrap">
 
                             <a
@@ -69,16 +140,68 @@
 
                             </a>
 
-                            {% if user == product.owner or perms.catalog.can_unpublish_product %}
+                            {% if user == product.owner %}
 
-                            <a
-                                href="{% url 'catalog:product_update' product.pk %}"
-                                class="btn btn-warning"
+                                {% if product.status != 'published' %}
+
+                                <a
+                                    href="{% url 'catalog:product_update' product.pk %}"
+                                    class="btn btn-warning"
+                                >
+
+                                    Редактировать
+
+                                </a>
+
+                                {% endif %}
+
+                            {% endif %}
+
+                            {% if user == product.owner %}
+
+                                {% if product.status == 'draft' or product.status == 'rejected' %}
+
+                                <form
+                                    method="post"
+                                    action="{% url 'catalog:product_publish' product.pk %}"
+                                >
+
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-success"
+                                    >
+
+                                        Отправить на проверку
+
+                                    </button>
+
+                                </form>
+
+                                {% endif %}
+
+                            {% endif %}
+
+                            {% if product.status == 'published' and user == product.owner or perms.catalog.can_unpublish_product %}
+
+                            <form
+                                method="post"
+                                action="{% url 'catalog:product_unpublish' product.pk %}"
                             >
 
-                                Редактировать
+                                {% csrf_token %}
 
-                            </a>
+                                <button
+                                    type="submit"
+                                    class="btn btn-secondary"
+                                >
+
+                                    Снять с публикации
+
+                                </button>
+
+                            </form>
 
                             {% endif %}
 
@@ -112,8 +235,11 @@
 <style>
 
 .product-image {
+
     object-fit: cover;
+
     min-height: 500px;
+
 }
 
 </style>
