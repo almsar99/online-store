@@ -61,6 +61,32 @@
                     Блоги
                 </a>
 
+                {% if perms.catalog.can_unpublish_product %}
+
+                <a
+                    class="nav-link"
+                    href="{% url 'catalog:moderation_products' %}"
+                >
+
+                    Модерация
+
+                </a>
+
+                {% endif %}
+
+                {% if user.is_authenticated %}
+
+                <a
+                    class="nav-link"
+                    href="{% url 'catalog:my_products' %}"
+                >
+
+                    Мои товары
+
+                </a>
+
+                {% endif %}
+
             </div>
 
             <div class="navbar-nav align-items-center">
@@ -70,6 +96,24 @@
                     <span class="navbar-text text-warning me-3">
 
                         👋 {{ user.email }}
+
+                        {% if user.is_superuser %}
+
+                            | 👑 Суперпользователь
+
+                        {% elif user.groups.first.name == 'Контент-менеджер' %}
+
+                            | 📝 Контент-менеджер
+
+                        {% elif user.groups.first.name == 'Модератор продуктов' %}
+
+                            | 🛡️ Модератор
+
+                        {% else %}
+
+                            | 👤 Пользователь
+
+                        {% endif %}
 
                     </span>
 

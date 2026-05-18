@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'users',
 
     'django.contrib.admin',
-    'django.contrib.auth',
+    'users.auth_apps.CustomAuthConfig',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -213,3 +213,8 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+
+# CUSTOM ERROR PAGES
+
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
