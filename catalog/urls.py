@@ -5,6 +5,7 @@ from catalog.views import (
     HomeListView,
     ContactsTemplateView,
     ProductDetailView,
+    CategoryProductsListView,
     ProductCreateView,
     ProductUpdateView,
     ProductDeleteView,
@@ -35,6 +36,12 @@ urlpatterns = [
         'products/<int:pk>/',
         ProductDetailView.as_view(),
         name='product_detail'
+    ),
+
+    path(
+        'category/<int:category_id>/products/',
+        CategoryProductsListView.as_view(),
+        name='category_products'
     ),
 
     path(

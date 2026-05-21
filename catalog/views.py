@@ -2,6 +2,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.shortcuts import (
     get_object_or_404,
     redirect,
@@ -19,6 +21,7 @@ from django.views.generic import (
 
 from catalog.forms import ProductForm
 from catalog.models import Product, Contact
+from catalog.services import get_products_by_category
 
 
 class HomeListView(ListView):
@@ -66,6 +69,7 @@ class ContactsTemplateView(TemplateView):
         return context
 
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class ProductDetailView(DetailView):
 
     model = Product
@@ -83,6 +87,29 @@ class ProductDetailView(DetailView):
         self.object.save()
 
         return self.object
+
+
+class CategoryProductsListView(ListView):
+
+    model = Product
+
+    template_name = 'catalog/category_products.html'
+
+    context_object_name = 'products'
+
+    def get_queryset(self):
+
+        return get_products_by_category(
+            self.kwargs.get('category_id')
+        )
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        context['category_id'] = self.kwargs.get('category_id')
+
+        return context
 
 
 class ProductCreateView(
