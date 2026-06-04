@@ -1,0 +1,57 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="row mb-3">
+        <div class="col">
+            <h1>Рассылки</h1>
+        </div>
+
+        <div class="col text-end">
+            <a href="{% url 'mailing:mailing_create' %}"
+               class="btn btn-primary">
+                Создать рассылку
+            </a>
+        </div>
+    </div>
+
+    {% for mailing in object_list %}
+
+        <div class="card mb-3">
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    Рассылка #{{ mailing.pk }}
+                </h5>
+
+                <p>
+                    Статус: {{ mailing.get_status_display }}
+                </p>
+
+                <p>
+                    Начало: {{ mailing.start_time }}
+                </p>
+
+                <p>
+                    Окончание: {{ mailing.end_time }}
+                </p>
+
+                <a href="{% url 'mailing:mailing_detail' mailing.pk %}"
+                   class="btn btn-sm btn-outline-primary">
+                    Подробнее
+                </a>
+
+            </div>
+        </div>
+
+    {% empty %}
+
+        <p>Рассылок пока нет.</p>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

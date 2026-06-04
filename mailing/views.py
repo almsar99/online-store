@@ -12,10 +12,12 @@ from django.views.generic import (
 from mailing.forms import (
     RecipientForm,
     MessageForm,
+    MailingForm,
 )
 from mailing.models import (
     Recipient,
     Message,
+    Mailing,
 )
 
 
@@ -46,9 +48,7 @@ class RecipientCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         recipient = form.save(commit=False)
-
         recipient.owner = self.request.user
-
         recipient.save()
 
         return super().form_valid(form)
@@ -90,9 +90,7 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         message = form.save(commit=False)
-
         message.owner = self.request.user
-
         message.save()
 
         return super().form_valid(form)
@@ -109,3 +107,70 @@ class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
     template_name = 'mailing/message_confirm_delete.html'
     success_url = reverse_lazy('mailing:message_list')
+
+
+class MailingListView(LoginRequiredMixin, ListView):
+    model = Mailing
+    template_name = 'mailing/mailing_list.html'
+
+    def get_queryset(self):
+        return Mailing.objects.filter(
+            owner=self.request.user
+        )
+
+
+class MailingDetailView(LoginRequiredMixin, DetailView):
+    model = Mailing
+    template_name = 'mailing/mailing_detail.html'
+
+    def get_object(self, queryset=None):
+        mailing = super().get_object(queryset)
+
+        mailing.update_status()
+
+        return mailing
+
+
+class MailingCreateView(LoginRequiredMixin, CreateView):
+    model = Mailing
+    form_class = MailingForm
+    template_name = 'mailing/mailing_form.html'
+    success_url = reverse_lazy('mailing:mailing_list')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        kwargs['user'] = self.request.user
+
+        return kwargs
+
+    def form_valid(self, form):
+        mailing = form.save(commit=False)
+
+        mailing.owner = self.request.user
+
+        mailing.save()
+
+        form.save_m2m()
+
+        return super().form_valid(form)
+
+
+class MailingUpdateView(LoginRequiredMixin, UpdateView):
+    model = Mailing
+    form_class = MailingForm
+    template_name = 'mailing/mailing_form.html'
+    success_url = reverse_lazy('mailing:mailing_list')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        kwargs['user'] = self.request.user
+
+        return kwargs
+
+
+class MailingDeleteView(LoginRequiredMixin, DeleteView):
+    model = Mailing
+    template_name = 'mailing/mailing_confirm_delete.html'
+    success_url = reverse_lazy('mailing:mailing_list')

@@ -44,15 +44,34 @@ class MailingForm(forms.ModelForm):
             'start_time': forms.DateTimeInput(
                 attrs={
                     'type': 'datetime-local',
-                }
+                },
+                format='%Y-%m-%dT%H:%M',
             ),
             'end_time': forms.DateTimeInput(
                 attrs={
                     'type': 'datetime-local',
-                }
+                },
+                format='%Y-%m-%dT%H:%M',
             ),
             'recipients': forms.CheckboxSelectMultiple(),
         }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop(
+            'user',
+            None
+        )
+
+        super().__init__(*args, **kwargs)
+
+        if self.user:
+            self.fields['message'].queryset = Message.objects.filter(
+                owner=self.user
+            )
+
+            self.fields['recipients'].queryset = Recipient.objects.filter(
+                owner=self.user
+            )
 
     def clean_start_time(self):
         start_time = self.cleaned_data.get('start_time')
