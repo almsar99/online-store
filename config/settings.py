@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'catalog',
     'blog',
     'users',
+    'mailing',
 
     'django.contrib.admin',
     'users.auth_apps.CustomAuthConfig',
