@@ -22,6 +22,7 @@ class Recipient(models.Model):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        related_name='recipients',
         verbose_name='Владелец'
     )
 
@@ -46,6 +47,7 @@ class Message(models.Model):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        related_name='messages',
         verbose_name='Владелец'
     )
 
@@ -87,17 +89,20 @@ class Mailing(models.Model):
     message = models.ForeignKey(
         Message,
         on_delete=models.CASCADE,
+        related_name='mailings',
         verbose_name='Сообщение'
     )
 
     recipients = models.ManyToManyField(
         Recipient,
+        related_name='mailings',
         verbose_name='Получатели'
     )
 
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        related_name='mailings',
         verbose_name='Владелец'
     )
 
