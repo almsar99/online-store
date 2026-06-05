@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
 from django.urls import reverse_lazy
 from django.shortcuts import (
     get_object_or_404,
@@ -28,6 +29,25 @@ from mailing.models import (
     Attempt,
 )
 from mailing.services import send_mailing
+
+MAILING_DASHBOARD_CACHE_TIMEOUT = 60 * 5
+
+
+def get_mailing_dashboard_cache_key(user):
+    if (
+        user_can_view_all_recipients(user)
+        or user_can_view_all_mailings(user)
+    ):
+        return 'mailing_dashboard_manager'
+
+    return f'mailing_dashboard_user_{user.pk}'
+
+
+def clear_mailing_dashboard_cache():
+    try:
+        cache.delete_pattern('mailing_dashboard_*')
+    except AttributeError:
+        cache.clear()
 
 
 def user_can_view_all_recipients(user):
@@ -76,32 +96,41 @@ class MailingHomeView(LoginRequiredMixin, TemplateView):
 
         context['mailings'] = mailings_queryset.order_by('-id')[:5]
 
-        context['total_mailings'] = mailings_queryset.count()
+        cache_key = get_mailing_dashboard_cache_key(
+            self.request.user
+        )
+        cached_statistics = cache.get(cache_key)
 
-        context['active_mailings'] = mailings_queryset.filter(
-            start_time__lte=now,
-            end_time__gte=now
-        ).count()
+        if cached_statistics is None:
+            cached_statistics = {
+                'total_mailings': mailings_queryset.count(),
+                'active_mailings': mailings_queryset.filter(
+                    start_time__lte=now,
+                    end_time__gte=now
+                ).count(),
+                'finished_mailings': mailings_queryset.filter(
+                    end_time__lt=now
+                ).count(),
+                'created_mailings': mailings_queryset.filter(
+                    start_time__gt=now
+                ).count(),
+                'total_recipients': recipients_queryset.count(),
+                'total_attempts': attempts_queryset.count(),
+                'successful_attempts': attempts_queryset.filter(
+                    status=Attempt.STATUS_SUCCESS
+                ).count(),
+                'failed_attempts': attempts_queryset.filter(
+                    status=Attempt.STATUS_FAILED
+                ).count(),
+            }
 
-        context['finished_mailings'] = mailings_queryset.filter(
-            end_time__lt=now
-        ).count()
+            cache.set(
+                cache_key,
+                cached_statistics,
+                MAILING_DASHBOARD_CACHE_TIMEOUT
+            )
 
-        context['created_mailings'] = mailings_queryset.filter(
-            start_time__gt=now
-        ).count()
-
-        context['total_recipients'] = recipients_queryset.count()
-
-        context['total_attempts'] = attempts_queryset.count()
-
-        context['successful_attempts'] = attempts_queryset.filter(
-            status=Attempt.STATUS_SUCCESS
-        ).count()
-
-        context['failed_attempts'] = attempts_queryset.filter(
-            status=Attempt.STATUS_FAILED
-        ).count()
+        context.update(cached_statistics)
 
         return context
 
@@ -159,6 +188,8 @@ class RecipientCreateView(LoginRequiredMixin, CreateView):
         recipient.owner = self.request.user
         recipient.save()
 
+        clear_mailing_dashboard_cache()
+
         return super().form_valid(form)
 
 
@@ -175,6 +206,11 @@ class RecipientUpdateView(LoginRequiredMixin, UpdateView):
 
         return kwargs
 
+    def form_valid(self, form):
+        clear_mailing_dashboard_cache()
+
+        return super().form_valid(form)
+
     def get_queryset(self):
         return Recipient.objects.filter(
             owner=self.request.user
@@ -182,6 +218,10 @@ class RecipientUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class RecipientDeleteView(LoginRequiredMixin, DeleteView):
+    def form_valid(self, form):
+        clear_mailing_dashboard_cache()
+
+        return super().form_valid(form)
     model = Recipient
     template_name = 'mailing/recipient_confirm_delete.html'
     success_url = reverse_lazy('mailing:recipient_list')
@@ -223,10 +263,16 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
         message.owner = self.request.user
         message.save()
 
+        clear_mailing_dashboard_cache()
+
         return super().form_valid(form)
 
 
 class MessageUpdateView(LoginRequiredMixin, UpdateView):
+    def form_valid(self, form):
+        clear_mailing_dashboard_cache()
+
+        return super().form_valid(form)
     model = Message
     form_class = MessageForm
     template_name = 'mailing/message_form.html'
@@ -239,6 +285,10 @@ class MessageUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class MessageDeleteView(LoginRequiredMixin, DeleteView):
+    def form_valid(self, form):
+        clear_mailing_dashboard_cache()
+
+        return super().form_valid(form)
     model = Message
     template_name = 'mailing/message_confirm_delete.html'
     success_url = reverse_lazy('mailing:message_list')
@@ -316,6 +366,8 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
 
         form.save_m2m()
 
+        clear_mailing_dashboard_cache()
+
         return super().form_valid(form)
 
 
@@ -337,8 +389,17 @@ class MailingUpdateView(LoginRequiredMixin, UpdateView):
 
         return kwargs
 
+    def form_valid(self, form):
+        clear_mailing_dashboard_cache()
+
+        return super().form_valid(form)
+
 
 class MailingDeleteView(LoginRequiredMixin, DeleteView):
+    def form_valid(self, form):
+        clear_mailing_dashboard_cache()
+
+        return super().form_valid(form)
     model = Mailing
     template_name = 'mailing/mailing_confirm_delete.html'
     success_url = reverse_lazy('mailing:mailing_list')
@@ -366,6 +427,7 @@ class MailingSendView(LoginRequiredMixin, View):
 
         try:
             attempts = send_mailing(mailing)
+            clear_mailing_dashboard_cache()
 
             messages.success(
                 request,
@@ -417,6 +479,8 @@ class MailingDisableView(LoginRequiredMixin, View):
                 'status',
             ]
         )
+
+        clear_mailing_dashboard_cache()
 
         messages.success(
             request,
