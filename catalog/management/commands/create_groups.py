@@ -4,6 +4,10 @@ from django.core.management.base import BaseCommand
 
 from blog.models import Blog
 from catalog.models import Product
+from mailing.models import (
+    Recipient,
+    Mailing,
+)
 
 
 class Command(BaseCommand):
@@ -15,6 +19,10 @@ class Command(BaseCommand):
         product_content_type = ContentType.objects.get_for_model(Product)
 
         blog_content_type = ContentType.objects.get_for_model(Blog)
+
+        recipient_content_type = ContentType.objects.get_for_model(Recipient)
+
+        mailing_content_type = ContentType.objects.get_for_model(Mailing)
 
         unpublish_permission = Permission.objects.get(
             codename='can_unpublish_product',
@@ -29,6 +37,21 @@ class Command(BaseCommand):
         manage_blog_permission = Permission.objects.get(
             codename='can_manage_blog',
             content_type=blog_content_type
+        )
+
+        view_all_recipients_permission = Permission.objects.get(
+            codename='can_view_all_recipients',
+            content_type=recipient_content_type
+        )
+
+        view_all_mailings_permission = Permission.objects.get(
+            codename='can_view_all_mailings',
+            content_type=mailing_content_type
+        )
+
+        disable_mailing_permission = Permission.objects.get(
+            codename='can_disable_mailing',
+            content_type=mailing_content_type
         )
 
         moderators_group, created = Group.objects.get_or_create(
@@ -46,6 +69,16 @@ class Command(BaseCommand):
 
         content_managers_group.permissions.set([
             manage_blog_permission,
+        ])
+
+        mailing_managers_group, created = Group.objects.get_or_create(
+            name='Менеджер рассылок'
+        )
+
+        mailing_managers_group.permissions.set([
+            view_all_recipients_permission,
+            view_all_mailings_permission,
+            disable_mailing_permission,
         ])
 
         self.stdout.write(

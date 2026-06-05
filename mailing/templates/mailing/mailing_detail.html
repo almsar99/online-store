@@ -77,15 +77,19 @@
 
     {% endif %}
 
-    <a href="{% url 'mailing:mailing_update' object.pk %}"
-       class="btn btn-warning">
-        Редактировать
-    </a>
+    {% if object.owner == user %}
 
-    <a href="{% url 'mailing:mailing_delete' object.pk %}"
-       class="btn btn-danger">
-        Удалить
-    </a>
+        <a href="{% url 'mailing:mailing_update' object.pk %}"
+           class="btn btn-warning">
+            Редактировать
+        </a>
+
+        <a href="{% url 'mailing:mailing_delete' object.pk %}"
+           class="btn btn-danger">
+            Удалить
+        </a>
+
+    {% endif %}
 
     {% if object.status != 'finished' %}
 
@@ -98,6 +102,23 @@
             <button type="submit"
                     class="btn btn-success">
                 Запустить рассылку
+            </button>
+
+        </form>
+
+    {% endif %}
+
+    {% if perms.mailing.can_disable_mailing and object.status != 'finished' %}
+
+        <form method="post"
+              action="{% url 'mailing:mailing_disable' object.pk %}"
+              class="mt-3">
+
+            {% csrf_token %}
+
+            <button type="submit"
+                    class="btn btn-outline-danger">
+                Отключить рассылку
             </button>
 
         </form>

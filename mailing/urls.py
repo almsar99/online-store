@@ -22,6 +22,7 @@ from mailing.views import (
     MailingUpdateView,
     MailingDeleteView,
     MailingSendView,
+    MailingDisableView,
 )
 
 app_name = MailingConfig.name
@@ -133,5 +134,11 @@ urlpatterns = [
         'mailings/<int:pk>/send/',
         MailingSendView.as_view(),
         name='mailing_send'
+    ),
+
+    path(
+        'mailings/<int:pk>/disable/',
+        MailingDisableView.as_view(),
+        name='mailing_disable'
     ),
 ]

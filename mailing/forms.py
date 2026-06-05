@@ -28,10 +28,35 @@ class RecipientForm(forms.ModelForm):
         )
 
     def __init__(self, *args, **kwargs):
+        current_user = kwargs.pop(
+            'user',
+            None
+        )
+
         super().__init__(*args, **kwargs)
 
         self.fields['email'].required = False
         self.fields['full_name'].required = False
+
+        if current_user:
+            can_view_all_users = (
+                current_user.is_staff
+                or current_user.is_superuser
+                or current_user.has_perm('mailing.can_view_all_recipients')
+                or current_user.groups.filter(
+                    name='Модератор продуктов'
+                ).exists()
+                or current_user.groups.filter(
+                    name='Менеджер рассылок'
+                ).exists()
+            )
+
+            if can_view_all_users:
+                self.fields['user'].queryset = User.objects.all()
+            else:
+                self.fields['user'].queryset = User.objects.filter(
+                    pk=current_user.pk
+                )
 
     def clean(self):
         cleaned_data = super().clean()
