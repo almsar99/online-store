@@ -25,6 +25,7 @@ from mailing.models import (
     Recipient,
     Message,
     Mailing,
+    Attempt,
 )
 from mailing.services import send_mailing
 
@@ -71,6 +72,20 @@ class MailingHomeView(LoginRequiredMixin, TemplateView):
 
         context['total_recipients'] = Recipient.objects.filter(
             owner=self.request.user
+        ).count()
+
+        context['total_attempts'] = Attempt.objects.filter(
+            mailing__owner=self.request.user
+        ).count()
+
+        context['successful_attempts'] = Attempt.objects.filter(
+            mailing__owner=self.request.user,
+            status=Attempt.STATUS_SUCCESS
+        ).count()
+
+        context['failed_attempts'] = Attempt.objects.filter(
+            mailing__owner=self.request.user,
+            status=Attempt.STATUS_FAILED
         ).count()
 
         return context

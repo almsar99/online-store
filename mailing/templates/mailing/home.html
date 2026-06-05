@@ -48,7 +48,7 @@
 
     <div class="row mb-4">
 
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
             <div class="card h-100">
                 <div class="card-body">
                     <h5>Получателей</h5>
@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
             <div class="card h-100">
                 <div class="card-body">
                     <h5>Сообщения</h5>
@@ -82,7 +82,7 @@
             </div>
         </div>
 
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
             <div class="card h-100">
                 <div class="card-body">
                     <h5>Рассылки</h5>
@@ -99,6 +99,22 @@
             </div>
         </div>
 
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Попытки отправки</h5>
+                    <p class="mb-1">
+                        Всего: {{ total_attempts }}
+                    </p>
+                    <p class="mb-1">
+                        Успешных: {{ successful_attempts }}
+                    </p>
+                    <p class="mb-0">
+                        Неуспешных: {{ failed_attempts }}
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <hr>
