@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h1>Пользователи сервиса</h1>
+
+    <table class="table table-striped mt-4">
+
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Статус</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for service_user in users %}
+
+                <tr>
+                    <td>
+                        {{ service_user.email }}
+                    </td>
+
+                    <td>
+                        {% if service_user.is_active %}
+                            <span class="badge bg-success">
+                                Активен
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                Заблокирован
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if service_user != user %}
+
+                            {% if service_user.is_active %}
+
+                                <form method="post"
+                                      action="{% url 'users:user_block' service_user.pk %}">
+
+                                    {% csrf_token %}
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger">
+                                        Заблокировать
+                                    </button>
+
+                                </form>
+
+                            {% else %}
+
+                                <form method="post"
+                                      action="{% url 'users:user_unblock' service_user.pk %}">
+
+                                    {% csrf_token %}
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-success">
+                                        Разблокировать
+                                    </button>
+
+                                </form>
+
+                            {% endif %}
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                Это вы
+                            </span>
+
+                        {% endif %}
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

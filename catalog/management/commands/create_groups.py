@@ -8,6 +8,7 @@ from mailing.models import (
     Recipient,
     Mailing,
 )
+from users.models import User
 
 
 class Command(BaseCommand):
@@ -23,6 +24,8 @@ class Command(BaseCommand):
         recipient_content_type = ContentType.objects.get_for_model(Recipient)
 
         mailing_content_type = ContentType.objects.get_for_model(Mailing)
+
+        user_content_type = ContentType.objects.get_for_model(User)
 
         unpublish_permission = Permission.objects.get(
             codename='can_unpublish_product',
@@ -54,6 +57,16 @@ class Command(BaseCommand):
             content_type=mailing_content_type
         )
 
+        view_all_users_permission = Permission.objects.get(
+            codename='can_view_all_users',
+            content_type=user_content_type
+        )
+
+        block_user_permission = Permission.objects.get(
+            codename='can_block_user',
+            content_type=user_content_type
+        )
+
         moderators_group, created = Group.objects.get_or_create(
             name='Модератор продуктов'
         )
@@ -79,6 +92,8 @@ class Command(BaseCommand):
             view_all_recipients_permission,
             view_all_mailings_permission,
             disable_mailing_permission,
+            view_all_users_permission,
+            block_user_permission,
         ])
 
         self.stdout.write(

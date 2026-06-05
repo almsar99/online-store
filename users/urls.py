@@ -11,6 +11,9 @@ from users.views import (
     UserLoginView,
     UserLogoutView,
     UserProfileView,
+    UserListView,
+    UserBlockView,
+    UserUnblockView,
 )
 
 app_name = UsersConfig.name
@@ -49,6 +52,25 @@ urlpatterns = [
         'profile/',
         UserProfileView.as_view(),
         name='profile'
+    ),
+
+    # Управление пользователями
+    path(
+        'users/',
+        UserListView.as_view(),
+        name='user_list'
+    ),
+
+    path(
+        'users/<int:pk>/block/',
+        UserBlockView.as_view(),
+        name='user_block'
+    ),
+
+    path(
+        'users/<int:pk>/unblock/',
+        UserUnblockView.as_view(),
+        name='user_unblock'
     ),
 
     # Восстановление пароля

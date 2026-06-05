@@ -23,9 +23,11 @@ from django.utils.http import (
     urlsafe_base64_encode,
     urlsafe_base64_decode,
 )
+from django.views import View
 from django.views.generic import (
     CreateView,
     UpdateView,
+    ListView,
 )
 
 from users.forms import (
@@ -34,6 +36,14 @@ from users.forms import (
     UserProfileForm,
 )
 from users.models import User
+
+
+def user_can_view_all_users(user):
+    return user.has_perm('users.can_view_all_users')
+
+
+def user_can_block_user(user):
+    return user.has_perm('users.can_block_user')
 
 
 class UserRegisterView(CreateView):
@@ -150,3 +160,94 @@ class UserProfileView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
 
         return self.request.user
+
+
+class UserListView(LoginRequiredMixin, ListView):
+
+    model = User
+    template_name = 'users/user_list.html'
+    context_object_name = 'users'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not user_can_view_all_users(request.user):
+            messages.error(
+                request,
+                'У вас нет прав для просмотра списка пользователей.'
+            )
+
+            return redirect('catalog:home')
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return User.objects.all().order_by('email')
+
+
+class UserBlockView(LoginRequiredMixin, View):
+
+    def post(self, request, pk):
+        if not user_can_block_user(request.user):
+            messages.error(
+                request,
+                'У вас нет прав для блокировки пользователей.'
+            )
+
+            return redirect('catalog:home')
+
+        user = get_object_or_404(
+            User,
+            pk=pk
+        )
+
+        if user == request.user:
+            messages.error(
+                request,
+                'Нельзя заблокировать самого себя.'
+            )
+
+            return redirect('users:user_list')
+
+        user.is_active = False
+        user.save(
+            update_fields=[
+                'is_active',
+            ]
+        )
+
+        messages.success(
+            request,
+            'Пользователь заблокирован.'
+        )
+
+        return redirect('users:user_list')
+
+
+class UserUnblockView(LoginRequiredMixin, View):
+
+    def post(self, request, pk):
+        if not user_can_block_user(request.user):
+            messages.error(
+                request,
+                'У вас нет прав для разблокировки пользователей.'
+            )
+
+            return redirect('catalog:home')
+
+        user = get_object_or_404(
+            User,
+            pk=pk
+        )
+
+        user.is_active = True
+        user.save(
+            update_fields=[
+                'is_active',
+            ]
+        )
+
+        messages.success(
+            request,
+            'Пользователь разблокирован.'
+        )
+
+        return redirect('users:user_list')
