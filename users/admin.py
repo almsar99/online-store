@@ -10,44 +10,42 @@ class CustomUserAdmin(UserAdmin):
     model = User
 
     list_display = (
-        'email',
-        'phone',
-        'country',
-        'get_groups',
-        'is_staff',
+        "email",
+        "phone",
+        "country",
+        "get_groups",
+        "is_staff",
     )
 
     fieldsets = (
         (
             None,
             {
-                'fields': (
-                    'email',
-                    'password',
+                "fields": (
+                    "email",
+                    "password",
                 )
             },
         ),
-
         (
-            'Персональная информация',
+            "Персональная информация",
             {
-                'fields': (
-                    'avatar',
-                    'phone',
-                    'country',
+                "fields": (
+                    "avatar",
+                    "phone",
+                    "country",
                 )
             },
         ),
-
         (
-            'Права доступа',
+            "Права доступа",
             {
-                'fields': (
-                    'is_active',
-                    'is_staff',
-                    'is_superuser',
-                    'groups',
-                    'user_permissions',
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
                 )
             },
         ),
@@ -57,27 +55,24 @@ class CustomUserAdmin(UserAdmin):
         (
             None,
             {
-                'classes': ('wide',),
-
-                'fields': (
-                    'email',
-                    'password1',
-                    'password2',
-                    'is_staff',
-                    'is_superuser',
+                "classes": ("wide",),
+                "fields": (
+                    "email",
+                    "password1",
+                    "password2",
+                    "is_staff",
+                    "is_superuser",
                 ),
             },
         ),
     )
 
-    search_fields = ('email',)
+    search_fields = ("email",)
 
-    ordering = ('email',)
+    ordering = ("email",)
 
     def get_groups(self, obj):
 
-        return ', '.join(
-            [group.name for group in obj.groups.all()]
-        )
+        return ", ".join([group.name for group in obj.groups.all()])
 
-    get_groups.short_description = 'Группы'
+    get_groups.short_description = "Группы"

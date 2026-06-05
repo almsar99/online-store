@@ -15,68 +15,170 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Mailing',
+            name="Mailing",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start_time', models.DateTimeField(verbose_name='Начало рассылки')),
-                ('end_time', models.DateTimeField(verbose_name='Окончание рассылки')),
-                ('status', models.CharField(choices=[('created', 'Создана'), ('started', 'Запущена'), ('finished', 'Завершена')], default='created', max_length=20, verbose_name='Статус')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Владелец')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("start_time", models.DateTimeField(verbose_name="Начало рассылки")),
+                ("end_time", models.DateTimeField(verbose_name="Окончание рассылки")),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("created", "Создана"),
+                            ("started", "Запущена"),
+                            ("finished", "Завершена"),
+                        ],
+                        default="created",
+                        max_length=20,
+                        verbose_name="Статус",
+                    ),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Владелец",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Рассылка',
-                'verbose_name_plural': 'Рассылки',
+                "verbose_name": "Рассылка",
+                "verbose_name_plural": "Рассылки",
             },
         ),
         migrations.CreateModel(
-            name='Attempt',
+            name="Attempt",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('attempt_time', models.DateTimeField(auto_now_add=True, verbose_name='Дата попытки')),
-                ('status', models.CharField(choices=[('success', 'Успешно'), ('failed', 'Не успешно')], max_length=20, verbose_name='Статус')),
-                ('server_response', models.TextField(blank=True, verbose_name='Ответ сервера')),
-                ('mailing', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attempts', to='mailing.mailing', verbose_name='Рассылка')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "attempt_time",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата попытки"
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("success", "Успешно"), ("failed", "Не успешно")],
+                        max_length=20,
+                        verbose_name="Статус",
+                    ),
+                ),
+                (
+                    "server_response",
+                    models.TextField(blank=True, verbose_name="Ответ сервера"),
+                ),
+                (
+                    "mailing",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="attempts",
+                        to="mailing.mailing",
+                        verbose_name="Рассылка",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Попытка отправки',
-                'verbose_name_plural': 'Попытки отправки',
+                "verbose_name": "Попытка отправки",
+                "verbose_name_plural": "Попытки отправки",
             },
         ),
         migrations.CreateModel(
-            name='Message',
+            name="Message",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('subject', models.CharField(max_length=255, verbose_name='Тема письма')),
-                ('body', models.TextField(verbose_name='Текст письма')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Владелец')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "subject",
+                    models.CharField(max_length=255, verbose_name="Тема письма"),
+                ),
+                ("body", models.TextField(verbose_name="Текст письма")),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Владелец",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Сообщение',
-                'verbose_name_plural': 'Сообщения',
+                "verbose_name": "Сообщение",
+                "verbose_name_plural": "Сообщения",
             },
         ),
         migrations.AddField(
-            model_name='mailing',
-            name='message',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mailing.message', verbose_name='Сообщение'),
+            model_name="mailing",
+            name="message",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="mailing.message",
+                verbose_name="Сообщение",
+            ),
         ),
         migrations.CreateModel(
-            name='Recipient',
+            name="Recipient",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('email', models.EmailField(max_length=254, unique=True, verbose_name='Email')),
-                ('full_name', models.CharField(max_length=255, verbose_name='ФИО')),
-                ('comment', models.TextField(blank=True, verbose_name='Комментарий')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Владелец')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        max_length=254, unique=True, verbose_name="Email"
+                    ),
+                ),
+                ("full_name", models.CharField(max_length=255, verbose_name="ФИО")),
+                ("comment", models.TextField(blank=True, verbose_name="Комментарий")),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Владелец",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Получатель',
-                'verbose_name_plural': 'Получатели',
+                "verbose_name": "Получатель",
+                "verbose_name_plural": "Получатели",
             },
         ),
         migrations.AddField(
-            model_name='mailing',
-            name='recipients',
-            field=models.ManyToManyField(to='mailing.recipient', verbose_name='Получатели'),
+            model_name="mailing",
+            name="recipients",
+            field=models.ManyToManyField(
+                to="mailing.recipient", verbose_name="Получатели"
+            ),
         ),
     ]

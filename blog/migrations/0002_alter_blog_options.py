@@ -6,12 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('blog', '0001_initial'),
+        ("blog", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='blog',
-            options={'permissions': [('can_manage_blog', 'Can manage blog')], 'verbose_name': 'Статья', 'verbose_name_plural': 'Статьи'},
+            name="blog",
+            options={
+                "permissions": [("can_manage_blog", "Can manage blog")],
+                "verbose_name": "Статья",
+                "verbose_name_plural": "Статьи",
+            },
         ),
     ]

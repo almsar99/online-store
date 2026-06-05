@@ -19,94 +19,53 @@ from users.views import (
 app_name = UsersConfig.name
 
 urlpatterns = [
-
     # Регистрация
+    path("register/", UserRegisterView.as_view(), name="register"),
     path(
-        'register/',
-        UserRegisterView.as_view(),
-        name='register'
-    ),
-
-    path(
-        'email-confirm/<uidb64>/<token>/',
+        "email-confirm/<uidb64>/<token>/",
         UserEmailConfirmView.as_view(),
-        name='email_confirm'
+        name="email_confirm",
     ),
-
     # Вход
-    path(
-        'login/',
-        UserLoginView.as_view(),
-        name='login'
-    ),
-
+    path("login/", UserLoginView.as_view(), name="login"),
     # Выход
-    path(
-        'logout/',
-        UserLogoutView.as_view(),
-        name='logout'
-    ),
-
+    path("logout/", UserLogoutView.as_view(), name="logout"),
     # Профиль
-    path(
-        'profile/',
-        UserProfileView.as_view(),
-        name='profile'
-    ),
-
+    path("profile/", UserProfileView.as_view(), name="profile"),
     # Управление пользователями
-    path(
-        'users/',
-        UserListView.as_view(),
-        name='user_list'
-    ),
-
-    path(
-        'users/<int:pk>/block/',
-        UserBlockView.as_view(),
-        name='user_block'
-    ),
-
-    path(
-        'users/<int:pk>/unblock/',
-        UserUnblockView.as_view(),
-        name='user_unblock'
-    ),
-
+    path("users/", UserListView.as_view(), name="user_list"),
+    path("users/<int:pk>/block/", UserBlockView.as_view(), name="user_block"),
+    path("users/<int:pk>/unblock/", UserUnblockView.as_view(), name="user_unblock"),
     # Восстановление пароля
     path(
-        'password-reset/',
+        "password-reset/",
         auth_views.PasswordResetView.as_view(
-            template_name='users/password_reset_form.html',
-            email_template_name='users/password_reset_email.html',
-            success_url=reverse_lazy('users:password_reset_done')
+            template_name="users/password_reset_form.html",
+            email_template_name="users/password_reset_email.html",
+            success_url=reverse_lazy("users:password_reset_done"),
         ),
-        name='password_reset'
+        name="password_reset",
     ),
-
     path(
-        'password-reset/done/',
+        "password-reset/done/",
         auth_views.PasswordResetDoneView.as_view(
-            template_name='users/password_reset_done.html'
+            template_name="users/password_reset_done.html"
         ),
-        name='password_reset_done'
+        name="password_reset_done",
     ),
-
     path(
-        'reset/<uidb64>/<token>/',
+        "reset/<uidb64>/<token>/",
         auth_views.PasswordResetConfirmView.as_view(
-            template_name='users/password_reset_confirm.html',
-            success_url=reverse_lazy('users:password_reset_complete')
+            template_name="users/password_reset_confirm.html",
+            success_url=reverse_lazy("users:password_reset_complete"),
         ),
-        name='password_reset_confirm'
+        name="password_reset_confirm",
     ),
-
     path(
-        'reset/done/',
+        "reset/done/",
         auth_views.PasswordResetCompleteView.as_view(
-            template_name='users/password_reset_complete.html'
+            template_name="users/password_reset_complete.html"
         ),
-        name='password_reset_complete'
+        name="password_reset_complete",
     ),
-
 ]

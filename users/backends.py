@@ -1,21 +1,14 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
 
-
 UserModel = get_user_model()
 
 
 class EmailBackend(ModelBackend):
 
-    def authenticate(
-            self,
-            request,
-            username=None,
-            password=None,
-            **kwargs
-    ):
+    def authenticate(self, request, username=None, password=None, **kwargs):
 
-        email = kwargs.get('email')
+        email = kwargs.get("email")
 
         if email is None:
             email = username

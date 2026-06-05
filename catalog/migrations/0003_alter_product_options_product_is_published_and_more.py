@@ -8,23 +8,33 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalog', '0002_product_views_count'),
+        ("catalog", "0002_product_views_count"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='product',
-            options={'permissions': [('can_unpublish_product', 'Can unpublish product')], 'verbose_name': 'Продукт', 'verbose_name_plural': 'Продукты'},
+            name="product",
+            options={
+                "permissions": [("can_unpublish_product", "Can unpublish product")],
+                "verbose_name": "Продукт",
+                "verbose_name_plural": "Продукты",
+            },
         ),
         migrations.AddField(
-            model_name='product',
-            name='is_published',
-            field=models.BooleanField(default=False, verbose_name='Опубликовано'),
+            model_name="product",
+            name="is_published",
+            field=models.BooleanField(default=False, verbose_name="Опубликовано"),
         ),
         migrations.AddField(
-            model_name='product',
-            name='owner',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Владелец'),
+            model_name="product",
+            name="owner",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Владелец",
+            ),
         ),
     ]

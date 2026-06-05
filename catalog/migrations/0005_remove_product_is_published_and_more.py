@@ -6,22 +6,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalog', '0004_alter_product_owner'),
+        ("catalog", "0004_alter_product_owner"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='product',
-            name='is_published',
+            model_name="product",
+            name="is_published",
         ),
         migrations.AddField(
-            model_name='product',
-            name='moderator_comment',
-            field=models.TextField(blank=True, null=True, verbose_name='Комментарий модератора'),
+            model_name="product",
+            name="moderator_comment",
+            field=models.TextField(
+                blank=True, null=True, verbose_name="Комментарий модератора"
+            ),
         ),
         migrations.AddField(
-            model_name='product',
-            name='status',
-            field=models.CharField(choices=[('draft', 'Черновик'), ('pending', 'На проверке'), ('published', 'Опубликован'), ('rejected', 'Отклонён')], default='draft', max_length=20, verbose_name='Статус'),
+            model_name="product",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("draft", "Черновик"),
+                    ("pending", "На проверке"),
+                    ("published", "Опубликован"),
+                    ("rejected", "Отклонён"),
+                ],
+                default="draft",
+                max_length=20,
+                verbose_name="Статус",
+            ),
         ),
     ]

@@ -3,4 +3,4 @@ from django.contrib.auth.apps import AuthConfig
 
 class CustomAuthConfig(AuthConfig):
 
-    verbose_name = 'Группы'
+    verbose_name = "Группы"

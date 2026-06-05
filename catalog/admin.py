@@ -8,14 +8,12 @@ from catalog.models import Product, Category, Contact
 class CategoryAdmin(admin.ModelAdmin):
 
     list_display = (
-        'id',
-        'name',
-        'description',
+        "id",
+        "name",
+        "description",
     )
 
-    search_fields = (
-        'name',
-    )
+    search_fields = ("name",)
 
 
 @admin.register(Product)
@@ -24,45 +22,45 @@ class ProductAdmin(admin.ModelAdmin):
     form = ProductForm
 
     list_display = (
-        'id',
-        'name',
-        'price',
-        'category',
-        'owner',
-        'status',
-        'views_count',
-        'created_at',
+        "id",
+        "name",
+        "price",
+        "category",
+        "owner",
+        "status",
+        "views_count",
+        "created_at",
     )
 
     list_filter = (
-        'category',
-        'status',
-        'created_at',
+        "category",
+        "status",
+        "created_at",
     )
 
     search_fields = (
-        'name',
-        'description',
+        "name",
+        "description",
     )
 
     readonly_fields = (
-        'created_at',
-        'updated_at',
-        'views_count',
+        "created_at",
+        "updated_at",
+        "views_count",
     )
 
     fields = (
-        'name',
-        'description',
-        'image',
-        'category',
-        'price',
-        'owner',
-        'status',
-        'moderator_comment',
-        'views_count',
-        'created_at',
-        'updated_at',
+        "name",
+        "description",
+        "image",
+        "category",
+        "price",
+        "owner",
+        "status",
+        "moderator_comment",
+        "views_count",
+        "created_at",
+        "updated_at",
     )
 
 
@@ -70,13 +68,13 @@ class ProductAdmin(admin.ModelAdmin):
 class ContactAdmin(admin.ModelAdmin):
 
     list_display = (
-        'id',
-        'city',
-        'phone',
-        'email',
+        "id",
+        "city",
+        "phone",
+        "email",
     )
 
     search_fields = (
-        'city',
-        'email',
+        "city",
+        "email",
     )

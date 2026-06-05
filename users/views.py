@@ -1,8 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import (
-    login,
-    logout,
-)
+from django.contrib.auth import logout
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (
@@ -39,19 +36,19 @@ from users.models import User
 
 
 def user_can_view_all_users(user):
-    return user.has_perm('users.can_view_all_users')
+    return user.has_perm("users.can_view_all_users")
 
 
 def user_can_block_user(user):
-    return user.has_perm('users.can_block_user')
+    return user.has_perm("users.can_block_user")
 
 
 class UserRegisterView(CreateView):
 
     model = User
     form_class = UserRegisterForm
-    template_name = 'users/register.html'
-    success_url = reverse_lazy('catalog:home')
+    template_name = "users/register.html"
+    success_url = reverse_lazy("catalog:home")
 
     def form_valid(self, form):
 
@@ -59,39 +56,37 @@ class UserRegisterView(CreateView):
         user.is_active = False
         user.save()
 
-        uid = urlsafe_base64_encode(
-            force_bytes(user.pk)
-        )
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
 
         activation_url = self.request.build_absolute_uri(
             reverse(
-                'users:email_confirm',
+                "users:email_confirm",
                 kwargs={
-                    'uidb64': uid,
-                    'token': token,
-                }
+                    "uidb64": uid,
+                    "token": token,
+                },
             )
         )
 
         send_mail(
-            subject='Подтверждение email',
+            subject="Подтверждение email",
             message=(
-                'Спасибо за регистрацию в нашем магазине.\n\n'
-                'Для подтверждения email перейдите по ссылке:\n'
-                f'{activation_url}'
+                "Спасибо за регистрацию в нашем магазине.\n\n"
+                "Для подтверждения email перейдите по ссылке:\n"
+                f"{activation_url}"
             ),
-            from_email='admin@localhost',
+            from_email="admin@localhost",
             recipient_list=[user.email],
             fail_silently=False,
         )
 
         messages.success(
             self.request,
-            'Регистрация почти завершена. Проверьте email и подтвердите аккаунт.'
+            "Регистрация почти завершена. Проверьте email и подтвердите аккаунт.",
         )
 
-        return redirect('users:login')
+        return redirect("users:login")
 
 
 # Email confirmation view
@@ -99,15 +94,12 @@ class UserEmailConfirmView(CreateView):
 
     model = User
     fields = []
-    template_name = 'users/register.html'
+    template_name = "users/register.html"
 
     def get(self, request, uidb64, token, *args, **kwargs):
         try:
             user_id = urlsafe_base64_decode(uidb64).decode()
-            user = get_object_or_404(
-                User,
-                pk=user_id
-            )
+            user = get_object_or_404(User, pk=user_id)
         except Exception:
             user = None
 
@@ -115,32 +107,28 @@ class UserEmailConfirmView(CreateView):
             user.is_active = True
             user.save(
                 update_fields=[
-                    'is_active',
+                    "is_active",
                 ]
             )
 
-            messages.success(
-                request,
-                'Email подтверждён. Теперь вы можете войти.'
-            )
+            messages.success(request, "Email подтверждён. Теперь вы можете войти.")
         else:
             messages.error(
-                request,
-                'Ссылка подтверждения недействительна или устарела.'
+                request, "Ссылка подтверждения недействительна или устарела."
             )
 
-        return redirect('users:login')
+        return redirect("users:login")
 
 
 class UserLoginView(LoginView):
 
     form_class = UserLoginForm
-    template_name = 'users/login.html'
+    template_name = "users/login.html"
 
 
 class UserLogoutView(LogoutView):
 
-    next_page = reverse_lazy('catalog:home')
+    next_page = reverse_lazy("catalog:home")
 
     def get(self, request, *args, **kwargs):
         logout(request)
@@ -152,10 +140,10 @@ class UserProfileView(LoginRequiredMixin, UpdateView):
 
     model = User
     form_class = UserProfileForm
-    template_name = 'users/profile.html'
-    success_url = reverse_lazy('catalog:home')
+    template_name = "users/profile.html"
+    success_url = reverse_lazy("catalog:home")
 
-    login_url = '/users/login/'
+    login_url = "/users/login/"
 
     def get_object(self, queryset=None):
 
@@ -165,89 +153,67 @@ class UserProfileView(LoginRequiredMixin, UpdateView):
 class UserListView(LoginRequiredMixin, ListView):
 
     model = User
-    template_name = 'users/user_list.html'
-    context_object_name = 'users'
+    template_name = "users/user_list.html"
+    context_object_name = "users"
 
     def dispatch(self, request, *args, **kwargs):
         if not user_can_view_all_users(request.user):
             messages.error(
-                request,
-                'У вас нет прав для просмотра списка пользователей.'
+                request, "У вас нет прав для просмотра списка пользователей."
             )
 
-            return redirect('catalog:home')
+            return redirect("catalog:home")
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return User.objects.all().order_by('email')
+        return User.objects.all().order_by("email")
 
 
 class UserBlockView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         if not user_can_block_user(request.user):
-            messages.error(
-                request,
-                'У вас нет прав для блокировки пользователей.'
-            )
+            messages.error(request, "У вас нет прав для блокировки пользователей.")
 
-            return redirect('catalog:home')
+            return redirect("catalog:home")
 
-        user = get_object_or_404(
-            User,
-            pk=pk
-        )
+        user = get_object_or_404(User, pk=pk)
 
         if user == request.user:
-            messages.error(
-                request,
-                'Нельзя заблокировать самого себя.'
-            )
+            messages.error(request, "Нельзя заблокировать самого себя.")
 
-            return redirect('users:user_list')
+            return redirect("users:user_list")
 
         user.is_active = False
         user.save(
             update_fields=[
-                'is_active',
+                "is_active",
             ]
         )
 
-        messages.success(
-            request,
-            'Пользователь заблокирован.'
-        )
+        messages.success(request, "Пользователь заблокирован.")
 
-        return redirect('users:user_list')
+        return redirect("users:user_list")
 
 
 class UserUnblockView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         if not user_can_block_user(request.user):
-            messages.error(
-                request,
-                'У вас нет прав для разблокировки пользователей.'
-            )
+            messages.error(request, "У вас нет прав для разблокировки пользователей.")
 
-            return redirect('catalog:home')
+            return redirect("catalog:home")
 
-        user = get_object_or_404(
-            User,
-            pk=pk
-        )
+        user = get_object_or_404(User, pk=pk)
 
         user.is_active = True
         user.save(
             update_fields=[
-                'is_active',
+                "is_active",
             ]
         )
 
-        messages.success(
-            request,
-            'Пользователь разблокирован.'
-        )
+        messages.success(request, "Пользователь разблокирован.")
 
-        return redirect('users:user_list')
+        return redirect("users:user_list")

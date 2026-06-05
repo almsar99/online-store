@@ -9,7 +9,7 @@ def send_mailing(mailing):
 
     if not mailing.start_time <= now <= mailing.end_time:
         raise ValueError(
-            'Рассылку можно запускать только между датой начала и датой окончания.'
+            "Рассылку можно запускать только между датой начала и датой окончания."
         )
 
     attempts = []
@@ -28,7 +28,7 @@ def send_mailing(mailing):
                 Attempt(
                     mailing=mailing,
                     status=Attempt.STATUS_SUCCESS,
-                    server_response='Письмо успешно отправлено',
+                    server_response="Письмо успешно отправлено",
                 )
             )
 

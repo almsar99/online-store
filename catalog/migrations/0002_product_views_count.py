@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalog', '0001_initial'),
+        ("catalog", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='views_count',
-            field=models.PositiveIntegerField(default=0, verbose_name='Количество просмотров'),
+            model_name="product",
+            name="views_count",
+            field=models.PositiveIntegerField(
+                default=0, verbose_name="Количество просмотров"
+            ),
         ),
     ]
