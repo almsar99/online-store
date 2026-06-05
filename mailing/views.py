@@ -1,5 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.shortcuts import (
+    get_object_or_404,
+    redirect,
+)
+from django.views import View
+from django.utils import timezone
 from django.views.generic import (
     TemplateView,
     ListView,
@@ -19,10 +26,54 @@ from mailing.models import (
     Message,
     Mailing,
 )
+from mailing.services import send_mailing
 
 
-class MailingHomeView(TemplateView):
+class MailingHomeView(LoginRequiredMixin, TemplateView):
     template_name = 'mailing/home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        now = timezone.now()
+
+        context['recipients'] = Recipient.objects.filter(
+            owner=self.request.user
+        ).order_by('-id')[:5]
+
+        context['messages'] = Message.objects.filter(
+            owner=self.request.user
+        ).order_by('-id')[:5]
+
+        context['mailings'] = Mailing.objects.filter(
+            owner=self.request.user
+        ).order_by('-id')[:5]
+
+        context['total_mailings'] = Mailing.objects.filter(
+            owner=self.request.user
+        ).count()
+
+        context['active_mailings'] = Mailing.objects.filter(
+            owner=self.request.user,
+            start_time__lte=now,
+            end_time__gte=now
+        ).count()
+
+        context['finished_mailings'] = Mailing.objects.filter(
+            owner=self.request.user,
+            end_time__lt=now
+        ).count()
+
+        context['created_mailings'] = Mailing.objects.filter(
+            owner=self.request.user,
+            start_time__gt=now
+        ).count()
+
+        context['total_recipients'] = Recipient.objects.filter(
+            owner=self.request.user
+        ).count()
+
+        return context
 
 
 class RecipientListView(LoginRequiredMixin, ListView):
@@ -30,14 +81,28 @@ class RecipientListView(LoginRequiredMixin, ListView):
     template_name = 'mailing/recipient_list.html'
 
     def get_queryset(self):
-        return Recipient.objects.filter(
+        queryset = Recipient.objects.filter(
             owner=self.request.user
         )
+
+        search_query = self.request.GET.get('q')
+
+        if search_query:
+            queryset = queryset.filter(
+                email__icontains=search_query
+            )
+
+        return queryset
 
 
 class RecipientDetailView(LoginRequiredMixin, DetailView):
     model = Recipient
     template_name = 'mailing/recipient_detail.html'
+
+    def get_queryset(self):
+        return Recipient.objects.filter(
+            owner=self.request.user
+        )
 
 
 class RecipientCreateView(LoginRequiredMixin, CreateView):
@@ -60,11 +125,21 @@ class RecipientUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'mailing/recipient_form.html'
     success_url = reverse_lazy('mailing:recipient_list')
 
+    def get_queryset(self):
+        return Recipient.objects.filter(
+            owner=self.request.user
+        )
+
 
 class RecipientDeleteView(LoginRequiredMixin, DeleteView):
     model = Recipient
     template_name = 'mailing/recipient_confirm_delete.html'
     success_url = reverse_lazy('mailing:recipient_list')
+
+    def get_queryset(self):
+        return Recipient.objects.filter(
+            owner=self.request.user
+        )
 
 
 class MessageListView(LoginRequiredMixin, ListView):
@@ -80,6 +155,11 @@ class MessageListView(LoginRequiredMixin, ListView):
 class MessageDetailView(LoginRequiredMixin, DetailView):
     model = Message
     template_name = 'mailing/message_detail.html'
+
+    def get_queryset(self):
+        return Message.objects.filter(
+            owner=self.request.user
+        )
 
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
@@ -102,11 +182,21 @@ class MessageUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'mailing/message_form.html'
     success_url = reverse_lazy('mailing:message_list')
 
+    def get_queryset(self):
+        return Message.objects.filter(
+            owner=self.request.user
+        )
+
 
 class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
     template_name = 'mailing/message_confirm_delete.html'
     success_url = reverse_lazy('mailing:message_list')
+
+    def get_queryset(self):
+        return Message.objects.filter(
+            owner=self.request.user
+        )
 
 
 class MailingListView(LoginRequiredMixin, ListView):
@@ -123,12 +213,29 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
     model = Mailing
     template_name = 'mailing/mailing_detail.html'
 
+    def get_queryset(self):
+        return Mailing.objects.filter(
+            owner=self.request.user
+        )
+
     def get_object(self, queryset=None):
         mailing = super().get_object(queryset)
 
         mailing.update_status()
 
         return mailing
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['current_time'] = timezone.now()
+        context['recipients_count'] = self.object.recipients.count()
+        context['attempts'] = self.object.attempts.all().order_by(
+            '-attempt_time'
+        )
+        context['attempts_count'] = context['attempts'].count()
+
+        return context
 
 
 class MailingCreateView(LoginRequiredMixin, CreateView):
@@ -162,6 +269,11 @@ class MailingUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'mailing/mailing_form.html'
     success_url = reverse_lazy('mailing:mailing_list')
 
+    def get_queryset(self):
+        return Mailing.objects.filter(
+            owner=self.request.user
+        )
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
@@ -174,3 +286,37 @@ class MailingDeleteView(LoginRequiredMixin, DeleteView):
     model = Mailing
     template_name = 'mailing/mailing_confirm_delete.html'
     success_url = reverse_lazy('mailing:mailing_list')
+
+    def get_queryset(self):
+        return Mailing.objects.filter(
+            owner=self.request.user
+        )
+
+
+class MailingSendView(LoginRequiredMixin, View):
+
+    def post(self, request, pk):
+        mailing = get_object_or_404(
+            Mailing,
+            pk=pk,
+            owner=request.user
+        )
+
+        try:
+            attempts = send_mailing(mailing)
+
+            messages.success(
+                request,
+                f'Рассылка запущена. Создано попыток отправки: {len(attempts)}.'
+            )
+
+        except ValueError as error:
+            messages.error(
+                request,
+                str(error)
+            )
+
+        return redirect(
+            'mailing:mailing_detail',
+            pk=mailing.pk
+        )

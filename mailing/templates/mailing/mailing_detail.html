@@ -12,6 +12,11 @@
     </p>
 
     <p>
+        <strong>Текущее время:</strong>
+        {{ current_time }}
+    </p>
+
+    <p>
         <strong>Начало:</strong>
         {{ object.start_time }}
     </p>
@@ -28,6 +33,7 @@
 
     <p>
         <strong>Получатели:</strong>
+        {{ recipients_count }}
     </p>
 
     <ul>
@@ -42,6 +48,35 @@
 
     </ul>
 
+    <p>
+        <strong>Попыток отправки:</strong>
+        {{ attempts_count }}
+    </p>
+
+    <h3>История попыток</h3>
+
+    {% if attempts %}
+
+        <ul>
+
+            {% for attempt in attempts %}
+
+                <li>
+                    {{ attempt.attempt_time }} —
+                    {{ attempt.get_status_display }} —
+                    {{ attempt.server_response }}
+                </li>
+
+            {% endfor %}
+
+        </ul>
+
+    {% else %}
+
+        <p>Попыток отправки пока нет.</p>
+
+    {% endif %}
+
     <a href="{% url 'mailing:mailing_update' object.pk %}"
        class="btn btn-warning">
         Редактировать
@@ -51,6 +86,23 @@
        class="btn btn-danger">
         Удалить
     </a>
+
+    {% if object.status != 'finished' %}
+
+        <form method="post"
+              action="{% url 'mailing:mailing_send' object.pk %}"
+              class="mt-3">
+
+            {% csrf_token %}
+
+            <button type="submit"
+                    class="btn btn-success">
+                Запустить рассылку
+            </button>
+
+        </form>
+
+    {% endif %}
 
 </div>
 

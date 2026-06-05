@@ -27,7 +27,25 @@
                 </h5>
 
                 <p>
-                    Статус: {{ mailing.get_status_display }}
+                    Статус:
+
+                    {% if mailing.status == 'created' %}
+                        <span class="badge bg-warning text-dark">
+                            🟡 {{ mailing.get_status_display }}
+                        </span>
+                    {% elif mailing.status == 'started' %}
+                        <span class="badge bg-success">
+                            🟢 {{ mailing.get_status_display }}
+                        </span>
+                    {% elif mailing.status == 'finished' %}
+                        <span class="badge bg-danger">
+                            🔴 {{ mailing.get_status_display }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-secondary">
+                            {{ mailing.get_status_display }}
+                        </span>
+                    {% endif %}
                 </p>
 
                 <p>

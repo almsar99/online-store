@@ -21,6 +21,7 @@ from mailing.views import (
     MailingCreateView,
     MailingUpdateView,
     MailingDeleteView,
+    MailingSendView,
 )
 
 app_name = MailingConfig.name
@@ -126,5 +127,11 @@ urlpatterns = [
         'mailings/<int:pk>/delete/',
         MailingDeleteView.as_view(),
         name='mailing_delete'
+    ),
+
+    path(
+        'mailings/<int:pk>/send/',
+        MailingSendView.as_view(),
+        name='mailing_send'
     ),
 ]

@@ -17,6 +17,31 @@
         </div>
     </div>
 
+    <form method="get"
+          class="mb-4">
+
+        <div class="input-group">
+
+            <input type="text"
+                   name="q"
+                   value="{{ request.GET.q }}"
+                   placeholder="Поиск по email"
+                   class="form-control">
+
+            <button type="submit"
+                    class="btn btn-outline-primary">
+                Найти
+            </button>
+
+            <a href="{% url 'mailing:recipient_list' %}"
+               class="btn btn-outline-secondary">
+                Сбросить
+            </a>
+
+        </div>
+
+    </form>
+
     <div class="row">
 
         {% for recipient in object_list %}

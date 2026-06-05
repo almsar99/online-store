@@ -4,6 +4,15 @@ from django.utils import timezone
 
 
 class Recipient(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='mailing_recipients',
+        verbose_name='Пользователь сайта'
+    )
+
     email = models.EmailField(
         unique=True,
         verbose_name='Email'

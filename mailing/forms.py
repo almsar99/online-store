@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from mailing.models import (
@@ -7,16 +8,61 @@ from mailing.models import (
     Mailing,
 )
 
+User = get_user_model()
+
 
 class RecipientForm(forms.ModelForm):
+    user = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        label='Зарегистрированный пользователь'
+    )
 
     class Meta:
         model = Recipient
         fields = (
+            'user',
             'email',
             'full_name',
             'comment',
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['email'].required = False
+        self.fields['full_name'].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        user = cleaned_data.get('user')
+        email = cleaned_data.get('email')
+        full_name = cleaned_data.get('full_name')
+
+        if user:
+            cleaned_data['email'] = user.email
+
+            if not full_name:
+                if hasattr(user, 'get_full_name') and user.get_full_name():
+                    cleaned_data['full_name'] = user.get_full_name()
+                else:
+                    cleaned_data['full_name'] = user.email
+
+        else:
+            if not email:
+                self.add_error(
+                    'email',
+                    'Укажите email или выберите зарегистрированного пользователя.'
+                )
+
+            if not full_name:
+                self.add_error(
+                    'full_name',
+                    'Укажите ФИО или выберите зарегистрированного пользователя.'
+                )
+
+        return cleaned_data
 
 
 class MessageForm(forms.ModelForm):
