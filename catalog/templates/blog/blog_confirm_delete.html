@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Удаление статьи
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-12">
+
+        <div class="card mb-4">
+
+            <div class="card-body">
+
+                <h3>
+                    Вы хотите удалить статью
+                    "{{ object.title }}"?
+                </h3>
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    <button type="submit"
+                            class="btn btn-outline-danger">
+                        Удалить
+                    </button>
+
+                    <a href="{% url 'blog:view' object.pk %}"
+                       class="btn btn-outline-primary">
+                        Отмена
+                    </a>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

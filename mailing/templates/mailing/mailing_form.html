@@ -1,0 +1,234 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+    <h1>Рассылка</h1>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            {{ form.start_time.label_tag }}
+            {{ form.start_time }}
+            {{ form.start_time.errors }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.end_time.label_tag }}
+            {{ form.end_time }}
+            {{ form.end_time.errors }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.message.label_tag }}
+
+            <input type="text"
+                   id="message-search"
+                   class="form-control mb-2"
+                   placeholder="Поиск сообщения по теме">
+
+            {{ form.message }}
+            {{ form.message.errors }}
+        </div>
+
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label>
+                    Получатели
+                    <span id="selected-recipients-count">
+                        (0 выбрано)
+                    </span>
+                </label>
+
+                <div>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            id="select-all-recipients">
+                        Выбрать всех
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            id="clear-all-recipients">
+                        Снять выбор
+                    </button>
+                </div>
+            </div>
+
+            <input type="text"
+                   id="recipient-search"
+                   class="form-control mb-2"
+                   placeholder="Поиск получателя по email">
+
+            <small class="text-muted d-block mb-2">
+                В окне отображается до 10 получателей. Если список длинный, используйте прокрутку справа или поиск.
+            </small>
+
+            <div class="border rounded p-3"
+                 style="max-height: 320px; overflow-y: auto;">
+                {{ form.recipients }}
+            </div>
+
+            {{ form.recipients.errors }}
+        </div>
+
+        <button type="submit"
+                class="btn btn-success">
+            Сохранить
+        </button>
+
+    </form>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const startInput = document.querySelector('input[name="start_time"]');
+        const endInput = document.querySelector('input[name="end_time"]');
+        const messageSearchInput = document.getElementById('message-search');
+        const messageSelect = document.querySelector('select[name="message"]');
+        const selectAllRecipientsButton = document.getElementById('select-all-recipients');
+        const clearAllRecipientsButton = document.getElementById('clear-all-recipients');
+        const recipientSearchInput = document.getElementById('recipient-search');
+        const selectedRecipientsCount = document.getElementById('selected-recipients-count');
+        const recipientCheckboxes = document.querySelectorAll('input[name="recipients"]');
+
+        function formatDateTimeLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function getDatePlusMinutes(minutes) {
+            const date = new Date();
+            date.setMinutes(date.getMinutes() + minutes);
+
+            return date;
+        }
+
+        function setDefaultDates() {
+            if (!startInput || !endInput) {
+                return;
+            }
+
+            if (!startInput.value) {
+                startInput.value = formatDateTimeLocal(
+                    getDatePlusMinutes(5)
+                );
+            }
+
+            if (!endInput.value) {
+                const startDate = new Date(startInput.value);
+                startDate.setMinutes(startDate.getMinutes() + 10);
+                endInput.value = formatDateTimeLocal(startDate);
+            }
+        }
+
+        if (startInput && endInput) {
+            setDefaultDates();
+
+            startInput.addEventListener('focus', setDefaultDates);
+            endInput.addEventListener('focus', setDefaultDates);
+
+            startInput.addEventListener('change', function () {
+                if (!startInput.value) {
+                    return;
+                }
+
+                const startDate = new Date(startInput.value);
+                const endDate = new Date(endInput.value);
+
+                if (!endInput.value || endDate <= startDate) {
+                    startDate.setMinutes(startDate.getMinutes() + 10);
+                    endInput.value = formatDateTimeLocal(startDate);
+                }
+            });
+        }
+
+        if (selectAllRecipientsButton) {
+            selectAllRecipientsButton.addEventListener('click', function () {
+                recipientCheckboxes.forEach(function (checkbox) {
+                    checkbox.checked = true;
+                    updateSelectedRecipientsCount();
+                });
+            });
+        }
+
+        if (clearAllRecipientsButton) {
+            clearAllRecipientsButton.addEventListener('click', function () {
+                recipientCheckboxes.forEach(function (checkbox) {
+                    checkbox.checked = false;
+                    updateSelectedRecipientsCount();
+                });
+            });
+        }
+
+        function updateSelectedRecipientsCount() {
+            const checkedCount = Array.from(recipientCheckboxes).filter(
+                function (checkbox) {
+                    return checkbox.checked;
+                }
+            ).length;
+
+            if (selectedRecipientsCount) {
+                selectedRecipientsCount.textContent = `(${checkedCount} выбрано)`;
+            }
+        }
+
+        recipientCheckboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', updateSelectedRecipientsCount);
+        });
+
+        updateSelectedRecipientsCount();
+
+        if (recipientSearchInput) {
+            recipientSearchInput.addEventListener('input', function () {
+                const query = recipientSearchInput.value.toLowerCase();
+
+                recipientCheckboxes.forEach(function (checkbox) {
+                    const listItem = checkbox.closest('li');
+
+                    if (!listItem) {
+                        return;
+                    }
+
+                    const text = listItem.textContent.toLowerCase();
+
+                    if (text.includes(query)) {
+                        listItem.style.display = '';
+                    } else {
+                        listItem.style.display = 'none';
+                    }
+                });
+            });
+        }
+        if (messageSearchInput && messageSelect) {
+            const originalMessageOptions = Array.from(messageSelect.options);
+
+            messageSearchInput.addEventListener('input', function () {
+                const query = messageSearchInput.value.toLowerCase();
+
+                messageSelect.innerHTML = '';
+
+                originalMessageOptions.forEach(function (option) {
+                    const text = option.textContent.toLowerCase();
+
+                    if (!query || text.includes(query) || !option.value) {
+                        messageSelect.appendChild(option.cloneNode(true));
+                    }
+                });
+            });
+        }
+    });
+</script>
+
+{% endblock %}

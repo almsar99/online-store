@@ -1,0 +1,190 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+    <h1 class="mb-4">Сервис рассылок</h1>
+
+    <div class="row mb-4">
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Всего рассылок</h5>
+                    <p class="fs-3">{{ total_mailings }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Созданных</h5>
+                    <p class="fs-3">{{ created_mailings }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Активных</h5>
+                    <p class="fs-3">{{ active_mailings }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Завершённых</h5>
+                    <p class="fs-3">{{ finished_mailings }}</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mb-4">
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Получателей</h5>
+                    <p class="fs-3">{{ total_recipients }}</p>
+                    <a href="{% url 'mailing:recipient_create' %}"
+                       class="btn btn-sm btn-primary">
+                        Добавить получателя
+                    </a>
+                    <a href="{% url 'mailing:recipient_list' %}"
+                       class="btn btn-sm btn-outline-primary">
+                        Все получатели
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Сообщения</h5>
+                    <p class="text-muted">Шаблоны писем для рассылок</p>
+                    <a href="{% url 'mailing:message_create' %}"
+                       class="btn btn-sm btn-primary">
+                        Добавить сообщение
+                    </a>
+                    <a href="{% url 'mailing:message_list' %}"
+                       class="btn btn-sm btn-outline-primary">
+                        Все сообщения
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Рассылки</h5>
+                    <p class="text-muted">Создание и запуск рассылок</p>
+                    <a href="{% url 'mailing:mailing_create' %}"
+                       class="btn btn-sm btn-success">
+                        Создать рассылку
+                    </a>
+                    <a href="{% url 'mailing:mailing_list' %}"
+                       class="btn btn-sm btn-outline-success">
+                        Все рассылки
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Попытки отправки</h5>
+                    <p class="mb-1">
+                        Всего: {{ total_attempts }}
+                    </p>
+                    <p class="mb-1">
+                        Успешных: {{ successful_attempts }}
+                    </p>
+                    <p class="mb-0">
+                        Неуспешных: {{ failed_attempts }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <h2>Последние рассылки</h2>
+
+    {% if mailings %}
+
+        <div class="list-group mb-4">
+
+            {% for mailing in mailings %}
+
+                <a href="{% url 'mailing:mailing_detail' mailing.pk %}"
+                   class="list-group-item list-group-item-action">
+                    Рассылка #{{ mailing.pk }} —
+
+                    {% if mailing.status == 'created' %}
+                        <span class="badge bg-warning text-dark">
+                            🟡 {{ mailing.get_status_display }}
+                        </span>
+                    {% elif mailing.status == 'started' %}
+                        <span class="badge bg-success">
+                            🟢 {{ mailing.get_status_display }}
+                        </span>
+                    {% elif mailing.status == 'finished' %}
+                        <span class="badge bg-danger">
+                            🔴 {{ mailing.get_status_display }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-secondary">
+                            {{ mailing.get_status_display }}
+                        </span>
+                    {% endif %}
+
+                    — {{ mailing.start_time }} / {{ mailing.end_time }}
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <p>Рассылок пока нет.</p>
+
+    {% endif %}
+
+    <h2>Последние сообщения</h2>
+
+    {% if messages %}
+
+        <div class="list-group mb-4">
+
+            {% for message in messages %}
+
+                <a href="{% url 'mailing:message_detail' message.pk %}"
+                   class="list-group-item list-group-item-action">
+                    {{ message.subject }}
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <p>Сообщений пока нет.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

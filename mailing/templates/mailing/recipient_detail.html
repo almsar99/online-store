@@ -1,0 +1,31 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+    <h1>{{ object.full_name }}</h1>
+
+    <p>
+        <strong>Email:</strong>
+        {{ object.email }}
+    </p>
+
+    <p>
+        <strong>Комментарий:</strong>
+        {{ object.comment }}
+    </p>
+
+    <a href="{% url 'mailing:recipient_update' object.pk %}"
+       class="btn btn-warning">
+        Редактировать
+    </a>
+
+    <a href="{% url 'mailing:recipient_delete' object.pk %}"
+       class="btn btn-danger">
+        Удалить
+    </a>
+
+</div>
+
+{% endblock %}

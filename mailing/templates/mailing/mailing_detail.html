@@ -1,0 +1,130 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+    <h1>Рассылка #{{ object.pk }}</h1>
+
+    <p>
+        <strong>Статус:</strong>
+        {{ object.get_status_display }}
+    </p>
+
+    <p>
+        <strong>Текущее время:</strong>
+        {{ current_time }}
+    </p>
+
+    <p>
+        <strong>Начало:</strong>
+        {{ object.start_time }}
+    </p>
+
+    <p>
+        <strong>Окончание:</strong>
+        {{ object.end_time }}
+    </p>
+
+    <p>
+        <strong>Сообщение:</strong>
+        {{ object.message.subject }}
+    </p>
+
+    <p>
+        <strong>Получатели:</strong>
+        {{ recipients_count }}
+    </p>
+
+    <ul>
+
+        {% for recipient in object.recipients.all %}
+
+            <li>
+                {{ recipient.email }}
+            </li>
+
+        {% endfor %}
+
+    </ul>
+
+    <p>
+        <strong>Попыток отправки:</strong>
+        {{ attempts_count }}
+    </p>
+
+    <h3>История попыток</h3>
+
+    {% if attempts %}
+
+        <ul>
+
+            {% for attempt in attempts %}
+
+                <li>
+                    {{ attempt.attempt_time }} —
+                    {{ attempt.get_status_display }} —
+                    {{ attempt.server_response }}
+                </li>
+
+            {% endfor %}
+
+        </ul>
+
+    {% else %}
+
+        <p>Попыток отправки пока нет.</p>
+
+    {% endif %}
+
+    {% if object.owner == user %}
+
+        <a href="{% url 'mailing:mailing_update' object.pk %}"
+           class="btn btn-warning">
+            Редактировать
+        </a>
+
+        <a href="{% url 'mailing:mailing_delete' object.pk %}"
+           class="btn btn-danger">
+            Удалить
+        </a>
+
+    {% endif %}
+
+    {% if object.status != 'finished' %}
+
+        <form method="post"
+              action="{% url 'mailing:mailing_send' object.pk %}"
+              class="mt-3">
+
+            {% csrf_token %}
+
+            <button type="submit"
+                    class="btn btn-success">
+                Запустить рассылку
+            </button>
+
+        </form>
+
+    {% endif %}
+
+    {% if perms.mailing.can_disable_mailing and object.status != 'finished' %}
+
+        <form method="post"
+              action="{% url 'mailing:mailing_disable' object.pk %}"
+              class="mt-3">
+
+            {% csrf_token %}
+
+            <button type="submit"
+                    class="btn btn-outline-danger">
+                Отключить рассылку
+            </button>
+
+        </form>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

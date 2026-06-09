@@ -1,0 +1,59 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="row mb-3">
+        <div class="col">
+            <h1>Сообщения рассылок</h1>
+        </div>
+
+        <div class="col text-end">
+            <a href="{% url 'mailing:message_create' %}"
+               class="btn btn-primary">
+                Добавить сообщение
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+
+        {% for message in object_list %}
+
+            <div class="col-md-4 mb-3">
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <h5 class="card-title">
+                            {{ message.subject }}
+                        </h5>
+
+                        <p class="card-text">
+                            {{ message.body|truncatechars:100 }}
+                        </p>
+
+                        <a href="{% url 'mailing:message_detail' message.pk %}"
+                           class="btn btn-sm btn-outline-primary">
+                            Подробнее
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <p>Сообщений пока нет.</p>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}
